@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 // const router = express.Router();
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
@@ -11,6 +12,9 @@ var session = require("express-session");
 const bcrypt = require("bcrypt");
 
 const app = express();
+
+// Enable CORS for all origins
+app.use(cors());
 // Middleware
 app.use(express.json());
 
