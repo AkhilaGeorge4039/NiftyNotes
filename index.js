@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 // const router = express.Router();
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
@@ -13,12 +12,17 @@ const bcrypt = require("bcrypt");
 
 const app = express();
 
-// Enable CORS for all origins
-app.use(cors());
 // Middleware
 app.use(express.json());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://niftynotesapp.netlify.app",
+      "https://niftynotesapp.netlify.app/",
+    ],
+  })
+);
 app.use(
   session({
     secret: "1234",
