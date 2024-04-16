@@ -20,10 +20,14 @@ function Header() {
   return (
     <>
       <div className="px-10">
-        <div className="flex justify-between py-6">
+        <div className="flex flex-col items-center gap-2 py-6 md:flex-row md:justify-between ">
           <div className="logo">
             <Link to="/">
-              <img src="/logo.svg" alt="logo" className="max-w-72" />
+              <img
+                src="/logo.svg"
+                alt="logo"
+                className=" max-w-44 md:max-w-72"
+              />
             </Link>
           </div>
           <div className="nav-bar">
