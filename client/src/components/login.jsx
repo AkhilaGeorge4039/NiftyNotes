@@ -36,19 +36,21 @@ function Login() {
 
   return (
     <>
-      <div className="px-10 h-full">
+      <div className="px-10 2xl:h-full">
         <form
           className="signup-form max-w-lg w-full mx-auto flex flex-col gap-5 h-full justify-center"
           onSubmit={handleSubmit}
         >
-          <h3 className="font-semibold text-2xl mb-2">Login Details</h3>
+          <h3 className="font-semibold text-lg md:text-2xl mb-2">
+            Login Details
+          </h3>
           <input
             type="email"
             name="email"
             value={email} // Bind value attribute to state
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="p-5 border border-stone-600 rounded-md bg-transparent"
+            className="md:p-5 p-3 border border-stone-600 rounded-md bg-transparent"
           />
           <input
             type="password"
@@ -56,7 +58,7 @@ function Login() {
             value={password} // Bind value attribute to state
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="p-5 border border-stone-600 rounded-md bg-transparent"
+            className="md:p-5 p-3 border border-stone-600 rounded-md bg-transparent"
           />
           {error && <p className="text-red-500">{error}</p>}{" "}
           {/* Display error message */}
@@ -66,7 +68,7 @@ function Login() {
           <button
             type="submit"
             id="sb"
-            className="p-5 border border-pri-color hover:bg-transparent hover:text-pri-color rounded-md bg-pri-color text-white font-semibold uppercase cursor-pointer duration-100 mt-4"
+            className="md:p-5 p-3 border border-pri-color hover:bg-transparent hover:text-pri-color rounded-md bg-pri-color text-white font-semibold uppercase cursor-pointer duration-100 mt-4"
           >
             Login
           </button>
