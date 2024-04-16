@@ -134,3 +134,11 @@ img {
   right: 0;
   top: 0;
 }
+
+/** media css **/
+
+@media screen and (max-width: 767px) {
+  body {
+    font-size: 1rem;
+  }
+}
