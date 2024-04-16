@@ -90,39 +90,42 @@ app.post("/addNotes", async (req, res) => {
     shared: isShared,
   });
 
-  // const collabUser = req.body.collaborationUser;
-  console.log("collabUser", req.body);
+  try {
+    let notesId;
+    const userId = req.body.id;
+    const user = await Users.findById(userId);
 
-  // console.log("log..", req.body.id);
-  let notesId;
-  const userId = req.body.id;
-  Notes.create(data)
-    .then(async (noteRes) => {
-      // console.log("data..", noteRes);
-      notesId = noteRes._id;
-      // res.json(noteRes);
-      // console.log("notesId..", notesId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-      const user = await Users.findById(userId);
-      // console.log("user fetch..", user);
+    Notes.create(data)
+      .then(async (noteRes) => {
+        notesId = noteRes._id;
 
-      user?.notesId.push(notesId);
-      await user.save();
-      if (req.body?.collaborationUser) {
-        Users.findById(req.body?.collaborationUser).then((collabUser) => {
-          collabUser.notesId.push(notesId);
-          console.log("collabUser fetched", collabUser);
-          collabUser.save();
-        });
-      }
+        user.notesId.push(notesId);
+        await user.save();
 
-      return res.json(data);
-    })
-    .catch((err) => {
-      console.log("error", err);
+        if (req.body?.collaborationUser) {
+          const collabUser = await Users.findById(req.body?.collaborationUser);
+          if (collabUser) {
+            collabUser.notesId.push(notesId);
+            await collabUser.save();
+          } else {
+            console.error("Collaborator user not found");
+          }
+        }
 
-      res.json(err);
-    });
+        return res.json(data);
+      })
+      .catch((err) => {
+        console.error("Error creating note:", err);
+        res.status(500).json({ error: "Failed to create note" });
+      });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.post("/notes", async (req, res) => {
