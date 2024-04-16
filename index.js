@@ -15,11 +15,8 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: "https://niftynotesapp.netlify.app",
-  })
-);
+// Use CORS middleware
+app.use(cors());
 app.use(
   session({
     secret: "1234",
