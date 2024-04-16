@@ -4,16 +4,16 @@ function Search(props) {
   const [search, setSearch] = useState("");
   return (
     <>
-      <div className="flex w-full justify-between">
+      <div className="flex w-full lg:justify-between flex-col items-center gap-4 md:flex-row">
         <div className="">
           <input
             type="text"
             placeholder="Type to search by title"
             onChange={(e) => setSearch(e.target.value)}
-            className=" p-4 border border-gray-300 rounded-md mr-2 focus:outline-0"
+            className="md:p-4 p-3 border border-gray-300 rounded-md mr-2 focus:outline-0"
           ></input>
           <button
-            className="button bg-pri-color h-full p-4 rounded-md text-white"
+            className="button bg-pri-color h-full md:p-4 p-3 rounded-md text-white"
             type="button"
             onClick={(e) => props.Search(search)}
           >
