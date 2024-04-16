@@ -1,10 +1,8 @@
 const express = require("express");
-// const router = express.Router();
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const cors = require("cors");
-// const bodyParser = require('body-parser');
 const Users = require("./models/User");
 const Notes = require("./models/Notes");
 var session = require("express-session");
@@ -12,10 +10,7 @@ const bcrypt = require("bcrypt");
 
 const app = express();
 
-// Middleware
 app.use(express.json());
-
-// Use CORS middleware
 app.use(cors());
 app.use(
   session({
@@ -30,9 +25,6 @@ app.use("*", (req, res, next) => {
   next();
 });
 
-// app.use(bodyParser.json());
-
-// MongoDB connection
 mongoose
   .connect(
     "mongodb+srv://akhilageorge555:AkhilaEbin28@cluster0.clek4jz.mongodb.net/NiftyNotes"
@@ -48,15 +40,17 @@ app.post("/login", (req, res) => {
         req.session.loggedInUserId = user._id;
         console.log("Session..", req.session.loggedInUserId);
 
-        if (user.password === password) {
-          res.json({
-            message: "Login Successful",
-            fullName: user.fullName,
-            id: user._id,
-          });
-        } else {
-          res.json({ error: "The password is incorrect." });
-        }
+        bcrypt.compare(password, user.password, function (err, result) {
+          if (result) {
+            res.json({
+              message: "Login Successful",
+              fullName: user.fullName,
+              id: user._id,
+            });
+          } else {
+            res.json({ error: "The password is incorrect." });
+          }
+        });
       } else {
         res.json({ error: "No record exists." });
       }
@@ -73,11 +67,17 @@ app.get("/users", async (req, res) => {
 });
 
 app.post("/signup", (req, res) => {
-  Users.create(req.body)
-    .then((User) => {
-      res.json(User);
-    })
-    .catch((err) => res.json(err));
+  bcrypt.hash(req.body.password, 10, function (err, hash) {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+    req.body.password = hash;
+    Users.create(req.body)
+      .then((User) => {
+        res.json(User);
+      })
+      .catch((err) => res.json(err));
+  });
 });
 
 app.post("/addNotes", async (req, res) => {
@@ -142,6 +142,7 @@ app.post("/notes", async (req, res) => {
   console.log("notes..", notes);
   res.json(notes);
 });
+
 app.post("/updateNotes", async (req, res) => {
   const userId = req.body.id;
   const noteId = req.body.noteId;
@@ -152,7 +153,7 @@ app.post("/updateNotes", async (req, res) => {
   findNo.color = req.body.color;
   findNo.date = new Date();
 
-  await findNo.updateOne(findNo);
+  await findNo.save();
   const notes = await Notes.find();
   notes.sort((a, b) => b.date - a.date);
   res.json(notes);
@@ -164,10 +165,10 @@ app.post("/deleteNote", async (req, res) => {
   await Notes.findOneAndDelete({ _id: noteId });
 
   const user = await Users.findById(userId);
-  const note = user.notesId.find((x) => x === noteId);
-  user.notesId.splice(note, 1);
+  const noteIndex = user.notesId.findIndex((x) => x == noteId);
+  user.notesId.splice(noteIndex, 1);
 
-  await user.updateOne(user);
+  await user.save();
   let latestNotes = await Notes.find();
   latestNotes = latestNotes.filter((x) => user.notesId.includes(x._id));
 
@@ -191,7 +192,6 @@ app.post("/search", async (req, res) => {
   res.json(notes);
 });
 
-// Start server
 app.listen(3001, () => console.log(`Server is running`));
 
 app.post("/forgot-password", (req, res) => {
@@ -235,21 +235,24 @@ app.post("/reset-password/:id/:token", async (req, res) => {
   const { password } = req.body;
 
   try {
-    // Verify the token
     jwt.verify(token, "jwt_secret_key", async (err, decoded) => {
       if (err) {
         console.error("Error with token:", err);
         return res.status(400).json({ Status: "Error with token" });
       } else {
-        // Update the user's password in the database
         const user = await Users.findById(id);
         if (!user) {
           return res.status(404).json({ Status: "User not found" });
         }
 
-        // Update the password without hashing
-        await Users.findByIdAndUpdate(id, { password });
-        res.json({ Status: "Success" });
+        bcrypt.hash(password, 10, async (err, hash) => {
+          if (err) {
+            return res.status(500).json({ error: err });
+          }
+          user.password = hash;
+          await user.save();
+          res.json({ Status: "Success" });
+        });
       }
     });
   } catch (error) {
