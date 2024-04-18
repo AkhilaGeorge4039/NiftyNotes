@@ -69,7 +69,7 @@ app.post("/login", (req, res) => {
     });
 });
 
-app.get("/users", async (req, res) => {
+app.get("https://niftynotes-4ja6.onrender.com/users", async (req, res) => {
   Users.find().then((user) => {
     return res.json(user);
   });
