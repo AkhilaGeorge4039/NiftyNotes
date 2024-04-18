@@ -17,6 +17,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: "https://niftynotesapp.netlify.app",
+    methods: ["GET", "POST", "DELETE", "PUT"],
   })
 );
 
